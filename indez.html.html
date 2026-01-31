@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Académico - Colegio Padre Arrupe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #003366 0%, #ffffff 100%);
+            font-family: 'Times New Roman', serif;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #003366;
+            font-size: 2.5em;
+        }
+        .header p {
+            color: #666;
+        }
+        .login-form {
+            margin-bottom: 30px;
+        }
+        .student-data {
+            display: none;
+        }
+        .table th {
+            background-color: #003366;
+            color: white;
+        }
+        .falta-leve { color: #ffc107; }
+        .falta-grave { color: #fd7e14; }
+        .falta-muy-grave { color: #dc3545; }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .logo {
+            font-size: 2em;
+            color: #003366;
+            margin: 0 auto 20px;
+            display: block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏫</div>  <!-- Emoji como placeholder para el escudo -->
+            <h1>Colegio Padre Arrupe</h1>
+            <p>Portal de Registros Académicos</p>
+        </div>
+        
+        <div id="loginSection">
+            <h2 class="text-center">Acceso a Registros</h2>
+            <form class="login-form" id="loginForm">
+                <div class="mb-3">
+                    <label for="studentName" class="form-label">Nombre del Estudiante</label>
+                    <input type="text" class="form-control" id="studentName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="studentCode" class="form-label">Código de Acceso</label>
+                    <input type="password" class="form-control" id="studentCode" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            </form>
+        </div>
+        
+        <div id="studentData" class="student-data">
+            <h2 id="studentNameDisplay"></h2>
+            
+            <h3>Notas Académicas</h3>
+            <table class="table table-striped" id="gradesTable">
+                <thead>
+                    <tr>
+                        <th>Asignatura</th>
+                        <th>Calificación</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesBody">
+                </tbody>
+            </table>
+            
+            <h3>Faltas de Asistencia</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title falta-leve">Leves</h5>
+                            <p class="card-text" id="faltasLeves">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title falta-grave">Graves</h5>
+                            <p class="card-text" id="faltasGraves">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title falta-muy-grave">Muy Graves</h5>
+                            <p class="card-text" id="faltasMuyGraves">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-secondary mt-3" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2026 Colegio Padre Arrupe. Todos los derechos reservados.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Datos simulados de estudiantes (solo los 4 seleccionados)
+        const studentsData = {
+            "Nataly Daniela Iraheta Gálvez": {
+                code: "835107",
+                grades: [
+                    { subject: "Matemáticas", grade: 88 },
+                    { subject: "Lengua", grade: 92 },
+                    { subject: "Historia", grade: 85 },
+                    { subject: "Ciencias", grade: 90 },
+                    { subject: "Inglés", grade: 87 }
+                ],
+                faltas: { leves: 1, graves: 0, muyGraves: 0 }
+            },
+            "Allegra Maria Gómez Funes": {
+                code: "948206",
+                grades: [
+                    { subject: "Matemáticas", grade: 93 },
+                    { subject: "Lengua", grade: 97 },
+                    { subject: "Historia", grade: 90 },
+                    { subject: "Ciencias", grade: 95 },
+                    { subject: "Inglés", grade: 92 }
+                ],
+                faltas: { leves: 1, graves: 0, muyGraves: 0 }
+            },
+            "Dayra Odette Vásquez Corea": {
+                code: "592180",
+                grades: [
+                    { subject: "Matemáticas", grade: 86 },
+                    { subject: "Lengua", grade: 90 },
+                    { subject: "Historia", grade: 83 },
+                    { subject: "Ciencias", grade: 88 },
+                    { subject: "Inglés", grade: 85 }
+                ],
+                faltas: { leves: 0, graves: 0, muyGraves: 1 }
+            },
+            "Johan Alexander Sandoval Romero": {
+                code: "430769",
+                grades: [
+                    { subject: "Matemáticas", grade: 92 },
+                    { subject: "Lengua", grade: 96 },
+                    { subject: "Historia", grade: 89 },
+                    { subject: "Ciencias", grade: 94 },
+                    { subject: "Inglés", grade: 91 }
+                ],
+                faltas: { leves: 1, graves: 0, muyGraves: 0 }
+            }
+        };
+        
+        const loginForm = document.getElementById('loginForm');
+        const loginSection = document.getElementById('loginSection');
+        const studentData = document.getElementById('studentData');
+        const studentNameDisplay = document.getElementById('studentNameDisplay');
+        const gradesBody = document.getElementById('gradesBody');
+        const faltasLeves = document.getElementById('faltasLeves');
+        const faltasGraves = document.getElementById('faltasGraves');
+        const faltasMuyGraves = document.getElementById('faltasMuyGraves');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('studentName').value.trim();
+            const code = document.getElementById('studentCode').value;
+            
+            if (studentsData[name] && studentsData[name].code === code) {
+                showStudentData(name);
+            } else {
+                alert('Nombre o código incorrecto. Inténtalo de nuevo.');
+            }
+        });
+        
+        function showStudentData(name) {
+            const data = studentsData[name];
+            studentNameDisplay.textContent = `Bienvenido, ${name}`;
+            
+            // Limpiar tabla anterior
+            gradesBody.innerHTML = '';
+            
+            // Agregar notas
+            data.grades.forEach(grade => {
+                const row = gradesBody.insertRow();
+                row.insertCell(0).textContent = grade.subject;
+                row.insertCell(1).textContent = grade.grade;
+            });
+            
+            // Mostrar faltas
+            faltasLeves.textContent = data.faltas.leves;
+            faltasGraves.textContent = data.faltas.graves;
+            faltasMuyGraves.textContent = data.faltas.muyGraves;
+            
+            // Ocultar login y mostrar datos
+            loginSection.style.display = 'none';
+            studentData.style.display = 'block';
+        }
+        
+        function logout() {
+            studentData.style.display = 'none';
+            loginSection.style.display = 'block';
+            loginForm.reset();
+        }
+    </script>
+</body>
+</html>
